@@ -1,0 +1,70 @@
+esphome:
+  name: "workspace-esp32"
+  friendly_name: Workspace ESP32
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: !secret api_key
+
+ota:
+  platform: esphome
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Esphome-Web-4C9100"
+    password: !secret ap_password
+
+captive_portal:
+
+i2c:
+  sda: 21
+  scl: 22
+  scan: true
+  id: bus_a
+
+binary_sensor:
+  - platform: gpio
+    name: "Workspace Light Switch"
+    pin:
+      number: GPIO25
+      inverted: True
+      mode:
+        input: True
+        pullup: True
+    filters:
+      - delayed_on: 10ms
+      - delayed_off: 10ms
+
+sensor:
+  - platform: dht
+    pin: GPIO4
+    temperature:
+      name: "Workspace Temperature"
+      filters:
+        - offset: -2.0
+    humidity:
+      name: "Workspace Humidity"
+    model: DHT11
+    update_interval: 5s
+  - platform: ags02ma
+    i2c_id: bus_a
+    address: 0x1a
+    tvoc:
+      name: "Workspace TVOC"
+    update_interval: 5s
+
+external_components:
+  - source: components
